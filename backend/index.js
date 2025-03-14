@@ -33,6 +33,9 @@ mongoose.connect(process.env.MONGODB_URI)
   
 // API
 app.use('/api/coupons', couponRoutes);
+app.use('/', (req, res)=>{
+   res.send("Hello Server is Working");
+})
 
 
 // if (process.env.NODE_ENV === 'production') {

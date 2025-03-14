@@ -38,9 +38,6 @@ const HomePage = () => {
 
 
 
-
-
-
 const handleClaimCoupon = async () => {
     setLoading(true);
     setError('');

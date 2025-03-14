@@ -100,7 +100,7 @@ export const claimCoupon = async (req, res) => {
         httpOnly: true,
         sameSite: 'Lax',
         secure: process.env.NODE_ENV === 'production',
-        domain: 'https://round-robin-psi.vercel.app'
+        domain: 'round-robin-psi.vercel.app'
       });
     }
 

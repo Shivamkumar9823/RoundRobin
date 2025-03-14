@@ -98,9 +98,8 @@ export const claimCoupon = async (req, res) => {
       res.cookie('deviceId', deviceId, { 
         maxAge: 365 * 24 * 60 * 60 * 1000, 
         httpOnly: true,
-        sameSite: 'Lax',
-        secure: process.env.NODE_ENV === 'production',
-        domain: 'round-robin-psi.vercel.app'
+        sameSite: 'None',
+        secure: process.env.NODE_ENV === 'production'
       });
     }
 

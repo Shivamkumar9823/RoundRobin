@@ -2,7 +2,7 @@ import Coupon from '../models/coupon.js';
 import Claim from '../models/Claim.js';
 
 
-const HOUR_IN_MS = 10 * 60 * 1000;
+const HOUR_IN_MS = 60 * 60 * 1000;
 const CLAIM_COOLDOWN = HOUR_IN_MS; 
 
 //initialize DB;

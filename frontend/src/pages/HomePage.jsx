@@ -5,7 +5,8 @@ import ClaimTimer from '../components/ClaimTimer';
 import ConfettiEffect from '../components/ConfettiEffect';
 import './HomePage.css'; // Import CSS file
 
-const API_URL = 'https://round-robin-backend.vercel.app/api';
+// const API_URL = 'https://round-robin-backend.vercel.app/api';
+const API_URL = 'http://localhost:5000/api';
 
 
 const HomePage = () => {

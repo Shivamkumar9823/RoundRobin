@@ -1,7 +1,6 @@
 import Coupon from '../models/coupon.js';
 import Claim from '../models/Claim.js';
 
-
 const HOUR_IN_MS = 60 * 60 * 1000;
 const CLAIM_COOLDOWN = HOUR_IN_MS; 
 
@@ -22,52 +21,35 @@ export const initializeCoupons = async () => {
   }
 };
 
-
-
-
 //=============================================check=======================================================================;
 export const checkEligibility = async (req, res) => {
   try {
     const ip = req.ip;
     const deviceId = req.cookies.deviceId || '';
     const now = Date.now();
+    
+    // Create a unique identifier based on IP and deviceId if available
+    // If deviceId exists, use that as primary identifier
+    // If not, use IP address
+    const userId = deviceId || ip;
 
-    // Check IP restriction
-    const ipClaim = await Claim.findOne({
-      ip,
+    // Check if this specific user (by deviceId or IP) has claimed recently
+    const recentClaim = await Claim.findOne({
+      // If deviceId exists, look for that first
+      ...(deviceId ? { deviceId } : { ip }),
       timestamp: { $gt: new Date(now - CLAIM_COOLDOWN) }
     });
 
-    if (ipClaim) {
-      const timeLeft = CLAIM_COOLDOWN - (now - new Date(ipClaim.timestamp).getTime());
+    if (recentClaim) {
+      const timeLeft = CLAIM_COOLDOWN - (now - new Date(recentClaim.timestamp).getTime());
       const minutesLeft = Math.ceil(timeLeft / (60 * 1000));
 
       return res.json({
         canClaim: false,
         timeLeft,
         minutesLeft,
-        reason: 'ip'
+        reason: deviceId ? 'device' : 'ip'
       });
-    }
-
-    // Check device ID restriction if cookie exists
-    if (deviceId) {
-      const deviceClaim = await Claim.findOne({
-        deviceId,
-        timestamp: { $gt: new Date(now - CLAIM_COOLDOWN) }
-      });
-
-      if (deviceClaim) {
-        const timeLeft = CLAIM_COOLDOWN - (now - new Date(deviceClaim.timestamp).getTime());
-        const minutesLeft = Math.ceil(timeLeft / (60 * 1000));
-
-        return res.json({
-          canClaim: false,
-          timeLeft,
-          minutesLeft,
-          reason: 'device'
-        });
-      }
     }
 
     res.json({
@@ -81,10 +63,6 @@ export const checkEligibility = async (req, res) => {
     res.status(500).json({ message: 'Server error while checking eligibility' });
   }
 };
-
-
-
-
 
 //=======================================================Claim========================================================//
 export const claimCoupon = async (req, res) => {
@@ -103,12 +81,14 @@ export const claimCoupon = async (req, res) => {
       });
     }
 
-    //all the claims with in 1hr;
+    // Create a unique identifier based on deviceId (preferred) or IP
+    const userId = deviceId || ip;
+
+    // Check if this specific user has claimed recently
     const recentClaim = await Claim.findOne({
-      $or: [
-        { ip, timestamp: { $gt: new Date(now - CLAIM_COOLDOWN) } },
-        { deviceId, timestamp: { $gt: new Date(now - CLAIM_COOLDOWN) } }
-      ] 
+      // If deviceId exists, look for that first, otherwise use IP
+      ...(deviceId ? { deviceId } : { ip }),
+      timestamp: { $gt: new Date(now - CLAIM_COOLDOWN) }
     });
 
     if (recentClaim) {
@@ -119,7 +99,6 @@ export const claimCoupon = async (req, res) => {
         message: `You've already claimed a coupon. Please wait ${minutesLeft} minutes before claiming another.`
       });
     }
-
 
     const coupons = await Coupon.find({ active: true });
     if (coupons.length === 0) {
@@ -163,13 +142,6 @@ export const claimCoupon = async (req, res) => {
     res.status(500).json({ message: 'Server error while claiming coupon' });
   }
 };
-
-
-
-
-
-
-
 
 // Get all coupons
 export const getAllCoupons = async (req, res) => {

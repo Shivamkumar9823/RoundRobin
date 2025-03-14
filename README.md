@@ -15,6 +15,8 @@ Cookies for Device Tracking: Uses deviceId stored in cookies.
 
  <h1>how abuse prevention Mechanism works</h1>
 - **IP Tracking:** Stores the user's IP into the database and restricts claims within 1 hour for the same ip address.
+
 - **Cookie Tracking:** Assigns a `deviceId` to prevent multiple claims from the same browser.
+ 
 - **Round-Robin Distribution:** Ensures fair coupon assignment to users.
 
